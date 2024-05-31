@@ -55,8 +55,8 @@
             // Try different patterns to match the coordinates
             const patterns = [
                 /@(-?\d+\.\d+),(-?\d+\.\d+)/,        // @latitude,longitude
-                /!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/,     // !3dlatitude!4dlongitude
-                /data=(?:.*!)*(\d+\.\d+),(\d+\.\d+)/  // data=...latitude,longitude
+                /!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/,    // !3dlatitude!4dlongitude
+                /data=(?:.*!)*(\d+\.\d+),(\d+\.\d+)/ // data=...latitude,longitude
             ];
             for (const pattern of patterns) {
                 const match = url.match(pattern);
