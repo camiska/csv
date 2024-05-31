@@ -25,14 +25,18 @@
                 const text = event.target.result;
                 const lines = text.split('\n').map(line => line.split(','));
                 const headers = lines[0];
+                console.log("Headers:", headers);
                 const data = lines.slice(1).filter(row => row.length > 1); // Ensure non-empty rows
+                console.log("Data:", data);
 
                 const result = [headers.join(',') + ',LATITUDE,LONGITUDE'];
 
                 data.forEach(row => {
                     const name = row[0];
                     const url = row[2];
+                    console.log("Row:", row);
                     const coords = extractCoordinates(url);
+                    console.log("Processing:", name, url, coords);
                     if (coords) {
                         result.push(`${name},,${url},${coords[0]},${coords[1]}`);
                     } else {
@@ -40,6 +44,7 @@
                     }
                 });
 
+                console.log("Result:", result);
                 const resultCSV = result.join('\n');
                 downloadCSV(resultCSV);
             };
@@ -50,14 +55,17 @@
             // Try different patterns to match the coordinates
             const patterns = [
                 /@(-?\d+\.\d+),(-?\d+\.\d+)/,        // @latitude,longitude
-                /!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/     // !3dlatitude!4dlongitude
+                /!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/,     // !3dlatitude!4dlongitude
+                /data=(?:.*!)*(\d+\.\d+),(\d+\.\d+)/  // data=...latitude,longitude
             ];
             for (const pattern of patterns) {
                 const match = url.match(pattern);
                 if (match) {
+                    console.log("Matched pattern:", pattern, "Coordinates:", match[1], match[2]);
                     return [match[1], match[2]];
                 }
             }
+            console.log("No coordinates found for URL:", url);
             return null;
         }
 
