@@ -59,6 +59,12 @@
                 return [match[1], match[2]];
             }
 
+            // Additional patterns to match coordinates if necessary
+            match = url.match(/data=!(?:\d+.){3}(\d+\.\d+),(\d+\.\d+)/);
+            if (match) {
+                return [match[1], match[2]];
+            }
+
             // If no coordinates are found, return null
             return null;
         }
