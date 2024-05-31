@@ -25,7 +25,7 @@
                 const text = event.target.result;
                 const lines = text.split('\n').map(line => line.split(','));
                 const headers = lines[0];
-                const data = lines.slice(1);
+                const data = lines.slice(1).filter(row => row.length > 1); // Ensure non-empty rows
 
                 const result = [headers.join(',') + ',LATITUDE,LONGITUDE'];
 
@@ -47,10 +47,19 @@
         }
 
         function extractCoordinates(url) {
-            const match = url.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+            // First attempt to match @latitude,longitude format
+            let match = url.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
             if (match) {
                 return [match[1], match[2]];
             }
+
+            // Second attempt to match coordinates in the data section
+            match = url.match(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/);
+            if (match) {
+                return [match[1], match[2]];
+            }
+
+            // If no coordinates are found, return null
             return null;
         }
 
