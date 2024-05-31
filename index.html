@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSV URL to Coordinates Converter</title>
+</head>
+<body>
+    <h1>CSV URL to Coordinates Converter</h1>
+    <input type="file" id="fileInput" accept=".csv">
+    <button onclick="processFile()">Convert</button>
+    <a id="downloadLink" style="display:none;">Download Converted CSV</a>
+
+    <script>
+        function processFile() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            if (!file) {
+                alert('Please select a CSV file.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const text = event.target.result;
+                const lines = text.split('\n').map(line => line.split(','));
+                const headers = lines[0];
+                const data = lines.slice(1);
+
+                const result = [headers.join(',') + ',LATITUDE,LONGITUDE'];
+
+                data.forEach(row => {
+                    const name = row[0];
+                    const url = row[2];
+                    const coords = extractCoordinates(url);
+                    if (coords) {
+                        result.push(`${name},${url},${coords[0]},${coords[1]}`);
+                    } else {
+                        result.push(`${name},${url},,`);
+                    }
+                });
+
+                const resultCSV = result.join('\n');
+                downloadCSV(resultCSV);
+            };
+            reader.readAsText(file);
+        }
+
+        function extractCoordinates(url) {
+            const match = url.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+            if (match) {
+                return [match[1], match[2]];
+            }
+            return null;
+        }
+
+        function downloadCSV(csv) {
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const link = document.getElementById('downloadLink');
+            link.href = url;
+            link.download = 'converted.csv';
+            link.style.display = 'block';
+            link.click();
+        }
+    </script>
+</body>
+</html>
