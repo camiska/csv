@@ -29,15 +29,16 @@
             }
         }
 
-        function extractCoordinatesFromHTML(html) {
-            console.log("HTML Content:", html);
-            const latLngPattern = /"center":\{"lat":([-\d.]+),"lng":([-\d.]+)\}/;
-            const match = html.match(latLngPattern);
+        function extractCoordinatesFromURL(url) {
+            const urlPattern = /@([-+\d.]+),([-+\d.]+)/;
+            const match = url.match(urlPattern);
             if (match) {
-                console.log(`Extracted coordinates: ${match[1]}, ${match[2]}`);
-                return [match[1], match[2]];
+                const lat = match[1];
+                const lng = match[2];
+                console.log(`Extracted coordinates from URL: ${lat}, ${lng}`);
+                return [lat, lng];
             }
-            console.warn("No coordinates found in HTML.");
+            console.warn("No coordinates found in URL.");
             return null;
         }
 
@@ -66,9 +67,14 @@
                     console.log("Processing row:", row);
                     const html = await fetchHTML(url);
                     if (html) {
-                        const coords = extractCoordinatesFromHTML(html);
-                        if (coords) {
-                            result.push(`${name},,${url},${coords[0]},${coords[1]}`);
+                        const redirectURL = new DOMParser().parseFromString(html, 'text/html').querySelector("meta[http-equiv='refresh']")?.content.split('url=')[1];
+                        if (redirectURL) {
+                            const coords = extractCoordinatesFromURL(redirectURL);
+                            if (coords) {
+                                result.push(`${name},,${url},${coords[0]},${coords[1]}`);
+                            } else {
+                                result.push(`${name},,${url},,`);
+                            }
                         } else {
                             result.push(`${name},,${url},,`);
                         }
